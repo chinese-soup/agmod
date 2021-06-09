@@ -1,0 +1,16 @@
+language: cpp
+os: osx
+
+env:
+  - CONFIGURATION=Debug
+  - CONFIGURATION=Release
+
+script:
+  - cd linux
+  - make
+
+deploy:
+  provider: releases
+  file: server.dylib
+  skip_cleanup: true
+  draft: true
