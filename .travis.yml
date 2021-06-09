@@ -9,8 +9,11 @@ script:
   - cd linux
   - make
 
+addons:
+  artifacts: true
+
 deploy:
   provider: releases
-  file: server.dylib
+  file: ag.dylib
   skip_cleanup: true
   draft: true

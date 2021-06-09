@@ -87,15 +87,18 @@ endif
 
 ifeq ($(OS),Darwin)
 # force 387 for FP math so the precision between win32 and linux and osx match
-ARCH_CFLAGS_I486+=-march=pentium-m -mfpmath=387
-ARCH_CFLAGS_I686+=-march=pentium-m -mfpmath=387
-ARCH_CFLAGS_AMD+=-mfpmath=387
+# ARCH_CFLAGS_I486+=-march=nehalem -mfpmath=387 -msse2
+ARCH_CFLAGS_I486+=-march=nehalem -mfpmath=sse -msse2
+# ARCH_CFLAGS_I686+=-march=nehalem -mfpmath=387 -msse2
+ARCH_CFLAGS_I686+=-march=nehalem -mfpmath=sse -msse2
+# ARCH_CFLAGS_AMD+=-mfpmath=387 -msse2
+ARCH_CFLAGS_AMD+=-mfpmath=sse -msse2
 endif
 
 
 ARCH_CFLAGS="$(ARCH_CFLAGS_I486)"
 
-BASE_CFLAGS=-fpermissive -fno-strict-aliasing -DNDEBUG -DPOSIX -D_POSIX -DLINUX -D_LINUX -DGNUC -DHL1 -Dstricmp=strcasecmp -D_strnicmp=strncasecmp -Dstrnicmp=strncasecmp -D_snprintf=snprintf -DQUIVER -DQUAKE2 -DVALVE_DLL -D_alloca=alloca -fno-exceptions -fexpensive-optimizations -D_vsnprintf=vsnprintf -DNO_MALLOC_OVERRIDE -Werror=return-type
+BASE_CFLAGS=-fpermissive -fno-strict-aliasing -std=gnu++11 -fms-extensions -DNDEBUG -DPOSIX -D_POSIX -DLINUX -D_LINUX -DGNUC -DHL1 -Dstricmp=strcasecmp -D_strnicmp=strncasecmp -Dstrnicmp=strncasecmp -D_snprintf=snprintf -DQUIVER -DQUAKE2 -DVALVE_DLL -D_alloca=alloca -fno-exceptions -fexpensive-optimizations -D_vsnprintf=vsnprintf -DNO_MALLOC_OVERRIDE -Werror=return-type
 BASE_CFLAGS+=-w
 
 ifeq ($(OS),Darwin)
