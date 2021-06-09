@@ -761,7 +761,7 @@ char* AgOSVersion()
 #if defined(_WIN32)
     static char verbuf[256];
 #elif defined(_OSX)
-	static char verbuf[4 * utsNameLength + 4];
+	static char verbuf[256];
 #else
     static char verbuf[4 * SYS_NMLN + 4];
 #endif
