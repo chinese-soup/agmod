@@ -337,7 +337,7 @@ else(MSVC)
 
     set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -m32 -std=c++14 -shared")
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -m32 -std=c++14 -shared")
-
+    set_target_properties(agmod PROPERTIES OUTPUT_NAME "ag.so")
     target_compile_options(agmod PRIVATE
             # High warning level and treat warnings as errors
             -Wall
