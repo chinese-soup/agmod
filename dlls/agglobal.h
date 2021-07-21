@@ -186,6 +186,7 @@ extern cvar_t ag_fps_limit_punishment;
 extern cvar_t ag_fps_limit_punishment_slap_intensity;
 extern cvar_t ag_fps_limit_punishment_slap_interval;
 extern cvar_t ag_fps_limit_punishment_ban_time;
+extern cvar_t ag_spectator_novis;
 
 extern bool g_bLangame;
 extern bool g_bUseTeamColors;

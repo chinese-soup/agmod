@@ -1180,7 +1180,19 @@ int AddToFullPack( struct entity_state_s *state, int e, edict_t *ent, edict_t *h
 	{
 		if ( !ENGINE_CHECK_VISIBILITY( (const struct edict_s *)ent, pSet ) )
 		{
-			return 0;
+			// If the entity we're sending update is spectating
+			//auto host_player = (CBasePlayer*)host->v.netname;
+
+			if ( ag_spectator_novis.value != 0.0f && host->v.iuser1 > 0 //&&
+			    //( strcmp(STRING(ent->v.classname), "func_door") == 0  || player == 1 )
+			    )
+			{
+				g_engfuncs.pfnServerPrint(UTIL_VarArgs("ENABLED: %s | %d \n", STRING(host->v.netname), host->v.iuser1));
+			}
+			else
+			{
+				return 0;
+			}
 		}
 	}
 
