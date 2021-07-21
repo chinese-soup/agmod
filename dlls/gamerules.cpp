@@ -336,19 +336,22 @@ AgGameRules* InstallGameRules(void)
 
 #ifndef AG_NO_CLIENT_DLL
 	//Detect CTF maps.
-	if (AgIsCTFMap(STRING(gpGlobals->mapname)))
+	if (ag_gamemode_auto.value > 0.0f)
 	{
-		AgString sGametype = CVAR_GET_STRING("sv_ag_gametype");
-		if (sGametype != "ctf" && NULL == strstr(CVAR_GET_STRING("sv_ag_gamemode"), "ctf"))
-			CVAR_SET_STRING("sv_ag_gamemode", "ctf");
-	}
+		if (AgIsCTFMap(STRING(gpGlobals->mapname)))
+		{
+			AgString sGametype = CVAR_GET_STRING("sv_ag_gametype");
+			if (sGametype != "ctf" && NULL == strstr(CVAR_GET_STRING("sv_ag_gamemode"), "ctf"))
+				CVAR_SET_STRING("sv_ag_gamemode", "ctf");
+		}
 
-	//Detect DOM maps.
-	if (AgIsDOMMap(STRING(gpGlobals->mapname)))
-	{
-		AgString sGametype = CVAR_GET_STRING("sv_ag_gametype");
-		if (sGametype != "dom")
-			CVAR_SET_STRING("sv_ag_gamemode", "dom");
+		//Detect DOM maps.
+		if (AgIsDOMMap(STRING(gpGlobals->mapname)))
+		{
+			AgString sGametype = CVAR_GET_STRING("sv_ag_gametype");
+			if (sGametype != "dom")
+				CVAR_SET_STRING("sv_ag_gamemode", "dom");
+		}
 	}
 #endif
 

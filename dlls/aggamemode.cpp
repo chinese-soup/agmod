@@ -54,6 +54,14 @@ AgString AgGamename()
     return "Half-Life";
 }
 
+const char *AgGamenameChar()
+{
+	if (g_pGame)
+		return g_pGame->m_sName.c_str();
+	else
+		return "Half-Life";
+}
+
 AgString AgGamedescription()
 {
     if (g_pGame)
@@ -205,10 +213,10 @@ void AgGameMode::Think()
             classifiedFpsMaxValues[closestValue]++;
         }
 
-        if (ag_fps_limit_auto_check_interval.value < MIN_FPS_LIMIT_CHECK_INTERVAL)
-            CVAR_SET_FLOAT("ag_fps_limit_auto_check_interval", MIN_FPS_LIMIT_CHECK_INTERVAL);
+        if (ag_fps_limit_check_interval.value < MIN_FPS_LIMIT_CHECK_INTERVAL)
+            CVAR_SET_FLOAT("ag_fps_limit_check_interval", MIN_FPS_LIMIT_CHECK_INTERVAL);
 
-        m_fNextFpsLimitCheck = gpGlobals->time + ag_fps_limit_auto_check_interval.value;
+        m_fNextFpsLimitCheck = gpGlobals->time + ag_fps_limit_check_interval.value;
 
         if (players == 0)
             return;

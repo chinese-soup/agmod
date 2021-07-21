@@ -31,6 +31,7 @@ extern cvar_t	timelimit;
 
 
 extern cvar_t	ag_gamemode;
+extern cvar_t	ag_gamemode_auto;
 
 extern cvar_t	ag_spectalk;
 extern cvar_t	ag_max_spectators;
@@ -176,7 +177,7 @@ extern cvar_t ag_spawn_pa_safe_chance;
 
 extern cvar_t ag_fps_limit;
 extern cvar_t ag_fps_limit_auto;
-extern cvar_t ag_fps_limit_auto_check_interval;
+extern cvar_t ag_fps_limit_check_interval;
 extern cvar_t ag_fps_limit_match_only;
 extern cvar_t ag_fps_limit_steampipe;
 extern cvar_t ag_fps_limit_warnings;

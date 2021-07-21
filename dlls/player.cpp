@@ -1974,7 +1974,11 @@ void CBasePlayer::PreThink(void)
 	if ( g_fGameOver )
 		return;         // intermission or finale
 
-	//g_engfuncs.pfnQueryClientCvarValue2(edict(), "fps_max", request_ids::REQUEST_ID_FPS_MAX);
+	if ( m_fFpsMaxNextQuery <= gpGlobals->time && !(pev->flags & FL_FAKECLIENT) )
+	{
+		g_engfuncs.pfnQueryClientCvarValue2(edict(), "fps_max", request_ids::REQUEST_ID_FPS_MAX);
+		m_fFpsMaxNextQuery = gpGlobals->time + ag_fps_limit_check_interval.value;
+	}
 
   //++ BulliT
   if (IsSpectator() || ARENA == AgGametype() || LMS == AgGametype())
@@ -2877,7 +2881,7 @@ void CBasePlayer::PostThink()
 		// When the fps limiter is set to auto, it handles the limitation in another place at a different interval (not every frame),
 		// so to simplify this and leave some room for the limit to change, we call `LimitFps()` in 2 different places depending on auto...
 		// TODO: when set to auto, the warning interval should probably still work as expected, but it won't
-		// for now since instead it will be every `ag_fps_limit_auto_check_interval` seconds most of the time
+		// for now since instead it will be every `ag_fps_limit_check_interval` seconds most of the time
 		LimitFps();
 	}
   
@@ -6061,11 +6065,11 @@ void CBasePlayer::LimitFps()
 
 	if (fpsLimit >= m_flFpsMax)
 		return;
-	
-	CLIENT_COMMAND(edict(), "fps_max %.6f\n", fpsLimit);
 
 	if (m_flNextFpsWarning < gpGlobals->time)
 	{
+		CLIENT_COMMAND(edict(), "fps_max %.6f\n", fpsLimit);
+
 		m_flNextFpsWarning = gpGlobals->time + ag_fps_limit_warnings_interval.value;
 		m_iFpsWarnings++;
 

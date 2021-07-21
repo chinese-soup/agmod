@@ -110,9 +110,11 @@ void ClientDisconnect( edict_t *pEntity )
 	if (g_fGameOver)
 		return;
 
+	auto player = GetClassPtr((CBasePlayer *)&pEntity->v);
+
 	char text[256] = "" ;
 	if ( pEntity->v.netname )
-		_snprintf( text, sizeof(text), "- %s has left the game\n", STRING(pEntity->v.netname) );
+		_snprintf( text, sizeof(text), "- %s has left the game\n", player->GetName() );
 	text[ sizeof(text) - 1 ] = 0;
 	MESSAGE_BEGIN( MSG_ALL, gmsgSayText, NULL );
 		WRITE_BYTE( ENTINDEX(pEntity) );
@@ -135,6 +137,11 @@ void ClientDisconnect( edict_t *pEntity )
 	UTIL_SetOrigin ( &pEntity->v, pEntity->v.origin );
 
 	g_pGameRules->ClientDisconnected( pEntity );
+
+	// For some reason, when you spawn a bot for 2nd+ time it takes this very instance of player again,
+	// which still has all the info filled in... we need at least this info cleared so it doesn't spam
+	// the chat with name changes, we might probably have to clear more stuff...
+	player->m_UserInfoName.clear();
 }
 
 
@@ -221,9 +228,6 @@ void ClientPutInServer( edict_t *pEntity )
 
 	// Reset interpolation during first frame
 	pPlayer->pev->effects |= EF_NOINTERP;
-
-	pPlayer->pev->iuser1 = 0;	// disable any spec modes
-	pPlayer->pev->iuser2 = 0; 
 }
 
 #include "voice_gamemgr.h"
@@ -583,9 +587,39 @@ void ClientUserInfoChanged( edict_t *pEntity, char *infobuffer )
 	if ( !pEntity->pvPrivateData )
 		return;
 
-	// msg everyone if someone changes their name,  and it isn't the first time (changing no name to current name)
-	if ( pEntity->v.netname && STRING(pEntity->v.netname)[0] != 0 && !FStrEq( STRING(pEntity->v.netname), g_engfuncs.pfnInfoKeyValue( infobuffer, "name" )) )
+	auto player = GetClassPtr((CBasePlayer *)&pEntity->v);
+	auto hasJustJoinedGame = player->m_UserInfoName.empty();
+
+	char sModel[256];
+	char *pModel = g_engfuncs.pfnInfoKeyValue(infobuffer, "model");
+	strncpy(sModel, pModel, sizeof(sModel) - 1);
+	sModel[sizeof(sModel) - 1] = 0;
+	if (hasJustJoinedGame || stricmp(sModel, player->m_szTeamName))
 	{
+		// Model has been changed, sanitize it
+
+		// Parse the model and remove any %'s
+		for (char *c = sModel; c != NULL && *c != 0; c++)
+		{
+			// Replace it with a space
+			if (*c == '%')
+				*c = ' ';
+		}
+
+		// Limit max model name
+		if (strlen(sModel) >= TEAM_NAME_LENGTH)
+		{
+			sModel[TEAM_NAME_LENGTH - 1] = '\0';
+		}
+
+		// Set the sanitized model
+		g_engfuncs.pfnSetClientKeyValue(ENTINDEX(pEntity), infobuffer, "model", sModel);
+	}
+
+	// msg everyone if someone changes their name
+	if (!FStrEq(player->m_UserInfoName.c_str(), g_engfuncs.pfnInfoKeyValue(infobuffer, "name")))
+	{
+		// Sanitize name
 		char sName[256];
 		char *pName = g_engfuncs.pfnInfoKeyValue( infobuffer, "name" );
 		strncpy( sName, pName, sizeof(sName) - 1 );
@@ -605,41 +639,45 @@ void ClientUserInfoChanged( edict_t *pEntity, char *infobuffer )
 #endif
 //-- Martin Webrant
 
-		// Set the name
-		g_engfuncs.pfnSetClientKeyValue( ENTINDEX(pEntity), infobuffer, "name", sName );
+		// Set the sanitized name
+		g_engfuncs.pfnSetClientKeyValue(ENTINDEX(pEntity), infobuffer, "name", sName);
+		player->m_UserInfoName = sName;
 
-		if (gpGlobals->maxClients > 1)
+		if (!hasJustJoinedGame)
 		{
-			char text[256];
-			sprintf( text, "* %s changed name to %s\n", STRING(pEntity->v.netname), g_engfuncs.pfnInfoKeyValue( infobuffer, "name" ) );
-			MESSAGE_BEGIN( MSG_ALL, gmsgSayText, NULL );
-				WRITE_BYTE( ENTINDEX(pEntity) );
-				WRITE_STRING( text );
-			MESSAGE_END();
-		}
+			if (gpGlobals->maxClients > 1)
+			{
+				char text[256];
+				sprintf( text, "* %s changed name to %s\n", STRING(pEntity->v.netname), sName );
+				MESSAGE_BEGIN( MSG_ALL, gmsgSayText, NULL );
+					WRITE_BYTE( ENTINDEX(pEntity) );
+					WRITE_STRING( text );
+				MESSAGE_END();
+			}
 
-		// team match?
-		if ( g_teamplay )
-		{
-			UTIL_LogPrintf( "\"%s<%i><%s><%s>\" changed name to \"%s\"\n", 
-				STRING( pEntity->v.netname ), 
-				GETPLAYERUSERID( pEntity ), 
-				GETPLAYERAUTHID( pEntity ),
-				g_engfuncs.pfnInfoKeyValue( infobuffer, "model" ), 
-				g_engfuncs.pfnInfoKeyValue( infobuffer, "name" ) );
-		}
-		else
-		{
-			UTIL_LogPrintf( "\"%s<%i><%s><%i>\" changed name to \"%s\"\n", 
-				STRING( pEntity->v.netname ), 
-				GETPLAYERUSERID( pEntity ), 
-				GETPLAYERAUTHID( pEntity ),
-				GETPLAYERUSERID( pEntity ), 
-				g_engfuncs.pfnInfoKeyValue( infobuffer, "name" ) );
+			// team match?
+			if ( g_teamplay )
+			{
+				UTIL_LogPrintf( "\"%s<%i><%s><%s>\" changed name to \"%s\"\n",
+					STRING( pEntity->v.netname ),
+					GETPLAYERUSERID( pEntity ),
+					GETPLAYERAUTHID( pEntity ),
+					sModel,
+					sName );
+			}
+			else
+			{
+				UTIL_LogPrintf( "\"%s<%i><%s><%i>\" changed name to \"%s\"\n",
+					STRING( pEntity->v.netname ),
+					GETPLAYERUSERID( pEntity ),
+					GETPLAYERAUTHID( pEntity ),
+					GETPLAYERUSERID( pEntity ),
+					sName );
+			}
 		}
 	}
 
-	g_pGameRules->ClientUserInfoChanged( GetClassPtr((CBasePlayer *)&pEntity->v), infobuffer );
+	g_pGameRules->ClientUserInfoChanged(player, infobuffer);
 }
 
 static int g_serveractive = 0;

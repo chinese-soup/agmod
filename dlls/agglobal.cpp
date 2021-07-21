@@ -32,6 +32,7 @@ DLL_GLOBAL cvar_t	ag_version = { "sv_ag_version","6.7", FCVAR_SERVER };
 #endif
 
 DLL_GLOBAL cvar_t	ag_gamemode = { "sv_ag_gamemode","ffa", FCVAR_SERVER }; //The current gamemode
+DLL_GLOBAL cvar_t	ag_gamemode_auto = { "sv_ag_gamemode_auto","1", FCVAR_SERVER }; // Detect the gamemode based on the map and switch gamemode automatically
 DLL_GLOBAL cvar_t	ag_allowed_gamemodes = { "sv_ag_allowed_gamemodes","" };
 
 DLL_GLOBAL cvar_t	ag_pure = { "sv_ag_pure","0",FCVAR_SERVER };     //Default off.
@@ -200,7 +201,7 @@ DLL_GLOBAL cvar_t	ag_spawn_pa_safe_chance    = { "ag_spawn_pa_safe_chance",    "
 // of having to do this with both sv_ag_fps_limit and ag_fps_limit. We'll see if it's the right decision
 DLL_GLOBAL cvar_t	ag_fps_limit = { "ag_fps_limit", "0", FCVAR_SERVER };  // Default: 0 - Cap players' fps_max. Standard in 2021 is 144 (125 and 100 before; 250 for bhop)
 DLL_GLOBAL cvar_t	ag_fps_limit_auto = { "ag_fps_limit_auto", "0", FCVAR_SERVER };  // Default: 0 - Whether to limit the fps to the most common fps among players
-DLL_GLOBAL cvar_t	ag_fps_limit_auto_check_interval = { "ag_fps_limit_auto_check_interval", "10.0", FCVAR_SERVER };  // Default: 10 seconds - How often to check for changing the limit
+DLL_GLOBAL cvar_t	ag_fps_limit_check_interval = { "ag_fps_limit_check_interval", "10.0", FCVAR_SERVER };  // Default: 10 seconds - How often to check for changing the limit
 DLL_GLOBAL cvar_t	ag_fps_limit_match_only = { "ag_fps_limit_match_only", "0", FCVAR_SERVER };  // Default: 0 - Whether to limit it only for players in a match
 DLL_GLOBAL cvar_t	ag_fps_limit_steampipe = { "ag_fps_limit_steampipe", "1", FCVAR_SERVER };  // Default: 1 - Whether to account for the 0.5 fps added by the engine (steampipe)
 DLL_GLOBAL cvar_t	ag_fps_limit_warnings = { "ag_fps_limit_warnings", "3", FCVAR_SERVER };  // Default: 3 - How many warnings before applying the punishment
@@ -223,7 +224,7 @@ extern AgString g_sGamemode;
 std::vector<std::string> g_votableSettings = {
     "ag_fps_limit",
     "ag_fps_limit_auto",
-    "ag_fps_limit_auto_check_interval",
+    "ag_fps_limit_check_interval",
     "ag_gauss_fix",
     "ag_rpg_fix",
     "ag_spawn_avoid_last_spots",
@@ -247,6 +248,7 @@ void AgInitGame()
 
     CVAR_REGISTER(&ag_version);
     CVAR_REGISTER(&ag_gamemode);
+    CVAR_REGISTER(&ag_gamemode_auto);
     CVAR_REGISTER(&ag_allowed_gamemodes);
 
     CVAR_REGISTER(&ag_allow_vote);
@@ -397,7 +399,7 @@ void AgInitGame()
 
     CVAR_REGISTER(&ag_fps_limit);
     CVAR_REGISTER(&ag_fps_limit_auto);
-    CVAR_REGISTER(&ag_fps_limit_auto_check_interval);
+    CVAR_REGISTER(&ag_fps_limit_check_interval);
     CVAR_REGISTER(&ag_fps_limit_match_only);
     CVAR_REGISTER(&ag_fps_limit_steampipe);
     CVAR_REGISTER(&ag_fps_limit_warnings);

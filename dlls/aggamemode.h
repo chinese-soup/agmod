@@ -42,6 +42,7 @@ public:
 };
 
 extern DLL_GLOBAL AgGameMode GameMode;
+const char* AgGamenameChar();
 AgString AgGamename();
 AgString AgGamedescription();
 
