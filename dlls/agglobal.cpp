@@ -210,6 +210,8 @@ DLL_GLOBAL cvar_t	ag_fps_limit_punishment_slap_intensity = { "ag_fps_limit_punis
 DLL_GLOBAL cvar_t	ag_fps_limit_punishment_slap_interval = { "ag_fps_limit_punishment_slap_interval", "1.0", FCVAR_SERVER };  // Default: 1 second - Time between slaps
 DLL_GLOBAL cvar_t	ag_fps_limit_punishment_ban_time = { "ag_fps_limit_punishment_ban_time", "3", FCVAR_SERVER };  // Default: 3 minutes - How much time to ban them for
 
+DLL_GLOBAL cvar_t	ag_spectator_novis = { "ag_spectator_novis", "0", FCVAR_SERVER };  // Default: 0 - VIS applies to spectators
+
 DLL_GLOBAL cvar_t	mm_agsay = { "mm_agsay","1", FCVAR_SERVER };
 
 
@@ -404,6 +406,8 @@ void AgInitGame()
     CVAR_REGISTER(&ag_fps_limit_punishment_slap_intensity);
     CVAR_REGISTER(&ag_fps_limit_punishment_slap_interval);
     CVAR_REGISTER(&ag_fps_limit_punishment_ban_time);
+
+    CVAR_REGISTER(&ag_spectator_novis);
 
     CVAR_REGISTER(&mm_agsay);
 

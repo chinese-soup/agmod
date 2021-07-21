@@ -1974,7 +1974,7 @@ void CBasePlayer::PreThink(void)
 	if ( g_fGameOver )
 		return;         // intermission or finale
 
-	g_engfuncs.pfnQueryClientCvarValue2(edict(), "fps_max", request_ids::REQUEST_ID_FPS_MAX);
+	//g_engfuncs.pfnQueryClientCvarValue2(edict(), "fps_max", request_ids::REQUEST_ID_FPS_MAX);
 
   //++ BulliT
   if (IsSpectator() || ARENA == AgGametype() || LMS == AgGametype())

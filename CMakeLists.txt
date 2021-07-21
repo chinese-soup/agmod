@@ -347,6 +347,8 @@ else(MSVC)
             -Wno-sign-compare
             -Wno-unused-function
             -Wno-unused-variable
+            -Wno-invalid-offsetof
+            -Wno-switch
 
             # Use the same FP instructions as others
             -march=pentium-m
