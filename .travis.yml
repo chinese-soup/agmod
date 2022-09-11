@@ -1,0 +1,24 @@
+language: cpp
+os: osx
+
+env:
+  - CONFIGURATION=Debug
+  - CONFIGURATION=Release
+
+script:
+  - cd linux
+  - make
+
+addons:
+  artifacts: true
+
+deploy:
+  on:
+    all_branches: true
+  provider: releases
+  file:
+    - "release/ag.dylib"
+  skip_cleanup: true
+  draft: true
+  api_key:
+    secure: "SlLjTlU2+NwOZf8jdxxk2cqoZwynFImOjN0vb1M674DsP57jlehubVORza6P2ZD5CZnO6X6ukkYDeIqEn+XSxHz7+FYtMI1G4IGoBaLXtJ6Anhg5BGeoikSitVGiWuCcYeAwTnBynQIgfJf5Ywr/LP8Cg9MkIRSkjJHCYRzys6RQzgdRcY21cpI+ZUSa6QpHTKwXjuXrW/kg8d2SWC+EUvU4iX+o4N7DZGpBs78qOfMfoV9SaM5mEEsJ9RGtZfHSJJpHKVernn4wCGTPa7jSI4HHg2CeUHZW11NyvdD1x01G+nT7MRDuFk09aLvmmh/iePQo9gBFlZpJxPZfZHz5SIwZRCVPxatm+wn3Xewp0hfrjzK7f7VRDEN5qrNq4Bi8KpeTs1g07XNEo2Wt9IvQYpU6gp+0J7BAnYnHn0HLz+S+tcNMXMa/8mW3Q8/7UyfPqo1PL2o8HUs6mlENQH09bSgTH78ZrGxyGHvnVRBVD2JOsrAOcTZaJf82lFya1WWY+nFKzrhm98Lq9qB6yO+6Fcpic0RuEtZBdvXNXNqNota+stOf1bKRMySJr7274xiKqXMAu/jIFnLWqTVltY+sQ+95lyERyWSAWaV1HUCuFAdtpH/9BrVBXcMp8RNieeN9F7kQ1htc1Q97fDjXgxtAg0lo8wUQLTcL/38sKFyTWWs="

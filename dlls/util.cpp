@@ -1801,7 +1801,7 @@ void CSaveRestoreBuffer :: BufferRewind( int size )
 	m_pdata->size -= size;
 }
 
-#ifndef _WIN32
+#if !defined(_WIN32) && !defined(_OSX)
 extern "C" {
 unsigned _rotr ( unsigned val, int shift)
 {
@@ -1821,7 +1821,7 @@ unsigned _rotr ( unsigned val, int shift)
         return num;
 }
 }
-#endif
+#endif // _WIN32 _OSX
 
 unsigned int CSaveRestoreBuffer :: HashString( const char *pszToken )
 {
