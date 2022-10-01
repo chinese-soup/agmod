@@ -2068,59 +2068,93 @@ void CBasePlayer::PreThink(void)
 		pev->flags &= ~FL_ONTRAIN;
 
 	// Train speed control
-	if ( m_afPhysicsFlags & PFLAG_ONTRAIN )
+	// Train speed control
+	if (m_afPhysicsFlags & PFLAG_ONTRAIN)
 	{
-		CBaseEntity *pTrain = CBaseEntity::Instance( pev->groundentity );
+		CBaseEntity *pTrain = Instance(pev->groundentity);
 		float vel;
-		
-		if ( !pTrain )
+
+		if (!pTrain)
 		{
 			TraceResult trainTrace;
 			// Maybe this is on the other side of a level transition
-			UTIL_TraceLine( pev->origin, pev->origin + Vector(0,0,-38), ignore_monsters, ENT(pev), &trainTrace );
+			UTIL_TraceLine(pev->origin, pev->origin + Vector(0, 0, -38), ignore_monsters, ENT(pev), &trainTrace);
 
 			// HACKHACK - Just look for the func_tracktrain classname
-			if ( trainTrace.flFraction != 1.0 && trainTrace.pHit )
-			pTrain = CBaseEntity::Instance( trainTrace.pHit );
+			if (trainTrace.flFraction != 1.0f && trainTrace.pHit)
+				pTrain = Instance(trainTrace.pHit);
 
-
-			if ( !pTrain || !(pTrain->ObjectCaps() & FCAP_DIRECTIONAL_USE) || !pTrain->OnControls(pev) )
+			if (!pTrain || !(pTrain->ObjectCaps() & FCAP_DIRECTIONAL_USE) || !pTrain->OnControls(pev))
 			{
-				//ALERT( at_error, "In train mode with no train!\n" );
 				m_afPhysicsFlags &= ~PFLAG_ONTRAIN;
-				m_iTrain = TRAIN_NEW|TRAIN_OFF;
+				m_iTrain = (TRAIN_NEW | TRAIN_OFF);
+				((CFuncVehicle *)pTrain)->m_pDriver = nullptr;
 				return;
 			}
 		}
-		else if ( !FBitSet( pev->flags, FL_ONGROUND ) || FBitSet( pTrain->pev->spawnflags, SF_TRACKTRAIN_NOCONTROL ) || (pev->button & (IN_MOVELEFT|IN_MOVERIGHT) ) )
+		else if (!(pev->flags & FL_ONGROUND) || (pTrain->pev->spawnflags & SF_TRACKTRAIN_NOCONTROL))
 		{
 			// Turn off the train if you jump, strafe, or the train controls go dead
 			m_afPhysicsFlags &= ~PFLAG_ONTRAIN;
-			m_iTrain = TRAIN_NEW|TRAIN_OFF;
+			m_iTrain = (TRAIN_NEW | TRAIN_OFF);
+			((CFuncVehicle *)pTrain)->m_pDriver = nullptr;
 			return;
 		}
 
 		pev->velocity = g_vecZero;
 		vel = 0;
-		if ( m_afButtonPressed & IN_FORWARD )
+
+		if (pTrain->Classify() == CLASS_VEHICLE)
 		{
-			vel = 1;
-			pTrain->Use( this, this, USE_SET, (float)vel );
+			if (pev->button & IN_FORWARD)
+			{
+				vel = 1;
+				pTrain->Use(this, this, USE_SET, vel);
+			}
+
+			if (pev->button & IN_BACK)
+			{
+				vel = -1;
+				pTrain->Use(this, this, USE_SET, vel);
+			}
+
+			if (pev->button & IN_MOVELEFT)
+			{
+				vel = 20;
+				pTrain->Use(this, this, USE_SET, vel);
+			}
+			if (pev->button & IN_MOVERIGHT)
+			{
+				vel = 30;
+				pTrain->Use(this, this, USE_SET, vel);
+			}
 		}
-		else if ( m_afButtonPressed & IN_BACK )
+		else
 		{
-			vel = -1;
-			pTrain->Use( this, this, USE_SET, (float)vel );
+			if (m_afButtonPressed & IN_FORWARD)
+			{
+				vel = 1;
+				pTrain->Use(this, this, USE_SET, vel);
+			}
+			else if (m_afButtonPressed & IN_BACK)
+			{
+				vel = -1;
+				pTrain->Use(this, this, USE_SET, vel);
+			}
 		}
 
 		if (vel)
 		{
 			m_iTrain = TrainSpeed(pTrain->pev->speed, pTrain->pev->impulse);
-			m_iTrain |= TRAIN_ACTIVE|TRAIN_NEW;
+			m_iTrain |= (TRAIN_ACTIVE | TRAIN_NEW);
 		}
+	}
+	else if (m_iTrain & TRAIN_ACTIVE)
+	{
+		// turn off train
+		m_iTrain = TRAIN_NEW;
+	}
 
-	} else if (m_iTrain & TRAIN_ACTIVE)
-		m_iTrain = TRAIN_NEW; // turn off train
 
 	if (pev->button & IN_JUMP)
 	{

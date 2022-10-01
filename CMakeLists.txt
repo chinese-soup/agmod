@@ -312,7 +312,7 @@ add_executable(agmod
         pm_shared/pm_math.cpp
         pm_shared/pm_movevars.h
         pm_shared/pm_shared.cpp
-        pm_shared/pm_shared.h)
+        pm_shared/pm_shared.h dlls/vehicle.cpp dlls/vehicle.h)
 
 target_include_directories(agmod PRIVATE
         ${CMAKE_BINARY_DIR}

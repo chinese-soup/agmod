@@ -653,6 +653,105 @@ void CTriggerMonsterJump :: Touch( CBaseEntity *pOther )
 }
 
 
+
+//
+// trigger_monsterjump
+//
+class CInfoCheckpoint : public CBaseTrigger
+{
+public:
+	void Spawn( void );
+	void Touch( CBaseEntity *pOther );
+	void KeyValue( KeyValueData *pkvd );
+	void Think( void );
+};
+
+LINK_ENTITY_TO_CLASS( info_checkpoint, CInfoCheckpoint );
+
+
+void CInfoCheckpoint :: Spawn ( void )
+{
+	SetMovedir ( pev );
+
+	InitTrigger ();
+
+	pev->nextthink = 0;
+	pev->speed = 0;
+
+	m_flHeight = 300;
+
+	if ( !FStringNull ( pev->targetname ) )
+	{// if targetted, spawn turned off
+		pev->solid = SOLID_NOT;
+		UTIL_SetOrigin( pev, pev->origin ); // Unlink from trigger list
+		SetUse( &CInfoCheckpoint::ToggleUse );
+	}
+	//pev->classname = MAKE_STRING("trigger_multiple");
+}
+
+
+
+void CInfoCheckpoint :: Think( void )
+{
+	//pev->solid = SOLID_NOT;// kill the trigger for now !!!UNDONE
+	UTIL_SetOrigin( pev, pev->origin ); // Unlink from trigger list
+	//SetThink( NULL );
+}
+
+void CInfoCheckpoint :: Touch( CBaseEntity *pOther )
+{
+	entvars_t *pevOther = pOther->pev;
+
+	/*if ( !FBitSet ( pevOther->flags , FL_MONSTER ) )
+	{// touched by a non-monster.
+		return;
+	}
+
+	pevOther->origin.z += 1;
+
+	if ( FBitSet ( pevOther->flags, FL_ONGROUND ) )
+	{// clear the onground so physics don't bitch
+		pevOther->flags &= ~FL_ONGROUND;
+	}
+
+	// toss the monster!
+	pevOther->velocity = pev->movedir * pev->speed;
+	pevOther->velocity.z += m_flHeight;*/
+
+
+	ALERT ( at_console, "HOLY SHIT THIS IS NUMBER %f\n", pev->health );
+
+	pev->nextthink = gpGlobals->time;
+}
+
+void CInfoCheckpoint ::KeyValue(KeyValueData *pkvd)
+{
+
+	if (FStrEq(pkvd->szKeyName, "number"))
+	{
+		ALERT ( at_console, "NUMBER %d\n", atoi(pkvd->szValue) );
+		pev->health = atoi(pkvd->szValue);
+		pev->iuser4 = atoi(pkvd->szValue);
+
+		pkvd->fHandled = TRUE;
+	}
+	else if (FStrEq(pkvd->szKeyName, "timeextension"))
+	{
+		if(pev->iuser4 > 1)
+		{
+			ALERT ( at_console, "PEV_IUSER %d\n", pev->iuser4 );
+		}
+		else
+		{
+			ALERT ( at_console, "PEV_IUSER %d\n", pev->iuser4 );
+		}
+		pkvd->fHandled = TRUE;
+	}
+	else
+		CBaseTrigger::KeyValue( pkvd );
+}
+
+
 //=====================================
 //
 // trigger_cdaudio - starts/stops cd audio tracks
